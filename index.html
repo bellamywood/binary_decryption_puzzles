@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Binary Code Breakers - Decryption Puzzles</title>
+  <style>
+    :root {
+      --ink: #17202d;
+      --muted: #5a6472;
+      --paper: #f3ead6;
+      --paper-light: #fffaf0;
+      --line: #cfbea0;
+      --stamp: #a8322f;
+      --stamp-soft: #f5dfdc;
+      --blue: #164e78;
+      --teal: #1c7c7a;
+      --gold: #d99a28;
+      --green: #28734f;
+      --red: #b33834;
+      --shadow: 0 16px 40px rgba(23, 32, 45, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.38)),
+        repeating-linear-gradient(0deg, transparent 0 31px, rgba(31, 44, 61, 0.08) 32px),
+        repeating-linear-gradient(90deg, transparent 0 31px, rgba(31, 44, 61, 0.08) 32px),
+        radial-gradient(circle at 20% 10%, #fff7e4, var(--paper) 44%, #e2d0ad 100%);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      width: 260px;
+      height: 260px;
+      pointer-events: none;
+      opacity: 0.28;
+      background: radial-gradient(circle, rgba(26, 20, 13, 0.22), transparent 65%);
+      filter: blur(18px);
+    }
+
+    body::before {
+      left: -80px;
+      bottom: 6vh;
+    }
+
+    body::after {
+      right: -70px;
+      top: -30px;
+    }
+
+    .page {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: start;
+      padding: 28px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.75), rgba(250, 239, 214, 0.86)),
+        var(--paper-light);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 2px solid rgba(168, 50, 47, 0.16);
+      pointer-events: none;
+    }
+
+    .kicker {
+      width: max-content;
+      max-width: 100%;
+      margin-bottom: 10px;
+      padding: 5px 9px;
+      border: 2px solid var(--stamp);
+      color: var(--stamp);
+      font: 800 0.74rem/1.1 "Courier New", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transform: rotate(-1deg);
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 5.2vw, 5rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+      color: #111b29;
+      max-width: 820px;
+    }
+
+    .intro {
+      margin: 14px 0 0;
+      max-width: 760px;
+      color: #394452;
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    .stamp {
+      display: grid;
+      place-items: center;
+      min-width: 142px;
+      aspect-ratio: 1;
+      border: 5px solid var(--stamp);
+      color: var(--stamp);
+      border-radius: 50%;
+      font: 900 1.03rem/1.05 "Courier New", monospace;
+      text-align: center;
+      text-transform: uppercase;
+      transform: rotate(9deg);
+      opacity: 0.86;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin: 18px 0;
+    }
+
+    .score {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.82);
+      box-shadow: 0 8px 22px rgba(23, 32, 45, 0.1);
+      font-weight: 800;
+    }
+
+    .score span {
+      color: var(--blue);
+      font-variant-numeric: tabular-nums;
+    }
+
+    button,
+    summary {
+      min-height: 42px;
+      border: 0;
+      background: var(--blue);
+      color: white;
+      padding: 10px 14px;
+      font: 800 0.9rem/1 "Segoe UI", Arial, sans-serif;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(22, 78, 120, 0.22);
+    }
+
+    button:hover,
+    summary:hover {
+      filter: brightness(1.05);
+    }
+
+    button:focus-visible,
+    summary:focus-visible,
+    input:focus-visible {
+      outline: 3px solid rgba(217, 154, 40, 0.75);
+      outline-offset: 2px;
+    }
+
+    .secondary {
+      background: #29384d;
+    }
+
+    details {
+      margin: 18px 0 22px;
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.9);
+      box-shadow: var(--shadow);
+    }
+
+    summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      background: linear-gradient(90deg, #1d314c, var(--blue));
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      font-size: 1.45rem;
+      line-height: 1;
+    }
+
+    details[open] summary::after {
+      content: "-";
+    }
+
+    .reference-body {
+      padding: 18px;
+    }
+
+    .reference-note {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .ascii-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 8px;
+    }
+
+    .ascii-item {
+      display: grid;
+      grid-template-columns: minmax(62px, auto) 1fr;
+      gap: 8px;
+      align-items: center;
+      min-height: 42px;
+      padding: 7px;
+      border: 1px solid rgba(23, 32, 45, 0.14);
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .char {
+      display: grid;
+      place-items: center;
+      min-height: 28px;
+      min-width: 34px;
+      padding: 0 5px;
+      border: 1px solid rgba(23, 32, 45, 0.18);
+      background: white;
+      font: 900 0.95rem/1 "Courier New", monospace;
+    }
+
+    .bits {
+      overflow-wrap: anywhere;
+      white-space: nowrap;
+      font: 800 0.86rem/1.2 "Courier New", monospace;
+      color: var(--blue);
+    }
+
+    .sections {
+      display: grid;
+      gap: 18px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 6px;
+      border-bottom: 3px solid rgba(168, 50, 47, 0.34);
+      padding-bottom: 8px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+      letter-spacing: 0;
+    }
+
+    .section-title p {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .puzzle-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+      gap: 16px;
+    }
+
+    .puzzle {
+      position: relative;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(250, 239, 214, 0.92)),
+        var(--paper-light);
+      box-shadow: 0 12px 28px rgba(23, 32, 45, 0.12);
+      overflow: hidden;
+    }
+
+    .puzzle::before {
+      content: attr(data-level);
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      border: 2px solid currentColor;
+      color: var(--stamp);
+      padding: 3px 6px;
+      font: 900 0.67rem/1 "Courier New", monospace;
+      text-transform: uppercase;
+      transform: rotate(2deg);
+      opacity: 0.72;
+    }
+
+    .puzzle h3 {
+      margin: 0 82px 10px 0;
+      font-size: 1.15rem;
+      letter-spacing: 0;
+    }
+
+    .binary-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 12px 0 14px;
+    }
+
+    .byte {
+      padding: 7px 8px;
+      border: 2px solid rgba(22, 78, 120, 0.34);
+      background: #0f2b45;
+      color: #8ee7ff;
+      font: 900 1rem/1 "Courier New", monospace;
+      box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .answer-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #344253;
+      font-size: 0.83rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    input {
+      width: 100%;
+      min-height: 42px;
+      border: 2px solid rgba(23, 32, 45, 0.24);
+      background: white;
+      padding: 9px 10px;
+      color: var(--ink);
+      font: 900 1.06rem/1 "Courier New", monospace;
+      letter-spacing: 0.02em;
+    }
+
+    .feedback {
+      min-height: 30px;
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.58);
+      border-left: 5px solid rgba(23, 32, 45, 0.2);
+      color: var(--muted);
+      font-weight: 750;
+      line-height: 1.35;
+    }
+
+    .feedback.correct {
+      border-color: var(--green);
+      color: var(--green);
+      background: rgba(232, 246, 238, 0.86);
+    }
+
+    .feedback.wrong {
+      border-color: var(--red);
+      color: var(--red);
+      background: rgba(250, 231, 229, 0.86);
+    }
+
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .guided {
+      border-width: 2px;
+      border-color: rgba(217, 154, 40, 0.55);
+    }
+
+    .guided::before {
+      color: var(--gold);
+    }
+
+    .solved {
+      border-color: rgba(40, 115, 79, 0.58);
+    }
+
+    .solved .byte {
+      border-color: rgba(40, 115, 79, 0.45);
+      color: #b8ffe0;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      padding: 16px;
+      border: 1px dashed rgba(168, 50, 47, 0.48);
+      background: rgba(255, 250, 240, 0.76);
+      color: #394452;
+      line-height: 1.5;
+    }
+
+    .encrypt-panel {
+      padding: 18px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(250, 239, 214, 0.92)),
+        var(--paper-light);
+      box-shadow: 0 12px 28px rgba(23, 32, 45, 0.12);
+    }
+
+    .encrypt-panel.secret-hidden .char-input,
+    .encrypt-panel.secret-hidden #secretMessage {
+      color: transparent;
+      text-shadow: 0 0 10px rgba(15, 43, 69, 0.9);
+      caret-color: var(--ink);
+    }
+
+    .encrypt-panel.secret-hidden .char-input::selection,
+    .encrypt-panel.secret-hidden #secretMessage::selection {
+      color: transparent;
+      background: rgba(15, 43, 69, 0.25);
+    }
+
+    .encrypt-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .encrypt-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.58);
+    }
+
+    .encrypt-table th,
+    .encrypt-table td {
+      border: 1px solid rgba(23, 32, 45, 0.18);
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .encrypt-table th {
+      background: rgba(22, 78, 120, 0.12);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+
+    .char-input {
+      width: 58px;
+      text-align: center;
+      text-transform: none;
+    }
+
+    .binary-output {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      max-width: 360px;
+    }
+
+    .bit-box {
+      display: grid;
+      place-items: center;
+      min-height: 34px;
+      border: 2px solid rgba(23, 32, 45, 0.18);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--blue);
+      font: 900 1.05rem/1 "Courier New", monospace;
+    }
+
+    .transmission-box {
+      min-height: 128px;
+      padding: 12px;
+      border: 2px dashed rgba(22, 78, 120, 0.38);
+      background: #0f2b45;
+      color: #8ee7ff;
+      font: 900 1rem/1.55 "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .partner-box {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid rgba(23, 32, 45, 0.18);
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .workflow-list {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-weight: 650;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .transmission-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      background: white;
+      box-shadow: 0 12px 28px rgba(23, 32, 45, 0.12);
+      border: 1px solid var(--line);
+    }
+
+    .transmission-table th {
+      background: #0f2b45;
+      color: white;
+      padding: 14px 8px;
+      font: 800 1rem/1 "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+
+    .transmission-table th + th {
+      border-left: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .transmission-table td {
+      border: 1px solid #344253;
+      padding: 0;
+      height: 48px;
+      width: 7.5%;
+      background: white;
+    }
+
+    .transmission-table td.ascii-cell {
+      width: 28%;
+      border-left: 2px solid #0f2b45;
+    }
+
+    .transmission-table input {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      text-align: center;
+      font: 800 1.2rem/1 "Courier New", monospace;
+      color: var(--ink);
+      padding: 0;
+    }
+
+    .transmission-table td.ascii-cell input {
+      font-size: 1.4rem;
+    }
+
+    .transmission-table input:focus {
+      outline: none;
+      background: rgba(217, 154, 40, 0.18);
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100vw - 20px, 1180px);
+        padding-top: 12px;
+      }
+
+      header {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+
+      .stamp {
+        width: 112px;
+        min-width: 112px;
+        justify-self: end;
+        font-size: 0.82rem;
+      }
+
+      .section-title {
+        display: block;
+      }
+
+      .section-title p {
+        text-align: left;
+        margin-top: 5px;
+      }
+
+      .answer-row {
+        grid-template-columns: 1fr;
+      }
+
+      .encrypt-layout {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <div class="kicker">Top Secret - Codebreaker Training</div>
+        <h1>Binary Decryption Puzzles</h1>
+        <p class="intro">Decode each intercepted transmission from 8-bit binary into human-readable characters. Use the expandable reference if you need it, then hide it when you are ready to work independently.</p>
+      </div>
+      <div class="stamp" aria-hidden="true">Mission<br />File</div>
+    </header>
+
+    <div class="toolbar">
+      <div class="score" aria-live="polite">Solved: <span id="score">0 / 8</span></div>
+      <button class="secondary" type="button" id="reset">Reset answers</button>
+    </div>
+
+    <details id="reference" open>
+      <summary>Character Reference: 8-bit ASCII codes</summary>
+      <div class="reference-body">
+        <p class="reference-note">Look up each 8-bit group, then write the character it represents. A space is shown as <b>[space]</b>. The prefix can give a useful clue: <b>001</b> often points to symbols/punctuation, <b>010</b> to capital letters, and <b>011</b> to lowercase letters.</p>
+        <div class="ascii-grid" id="asciiGrid"></div>
+      </div>
+    </details>
+
+    <section class="sections" aria-label="Binary puzzles">
+      <div class="section-title">
+        <h2>I Do / We Do</h2>
+        <p>Decode together first</p>
+      </div>
+      <div class="puzzle-grid" id="guidedGrid"></div>
+
+      <div class="section-title">
+        <h2>Easy</h2>
+        <p>All capital letters</p>
+      </div>
+      <div class="puzzle-grid" id="easyGrid"></div>
+
+      <div class="section-title">
+        <h2>Medium</h2>
+        <p>Lowercase included</p>
+      </div>
+      <div class="puzzle-grid" id="mediumGrid"></div>
+
+      <div class="section-title">
+        <h2>Hard</h2>
+        <p>Punctuation included</p>
+      </div>
+      <div class="puzzle-grid" id="hardGrid"></div>
+
+      <div class="section-title">
+        <h2>Create Your Own Transmission</h2>
+        <p>Pick a character, then write its 8-bit binary code</p>
+      </div>
+      <table class="transmission-table" aria-label="Create your own binary message worksheet">
+        <thead>
+          <tr>
+            <th colspan="8">BINARY CODE</th>
+            <th>ASCII CODE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td class="ascii-cell"><input maxlength="1" autocomplete="off" spellcheck="false" /></td></tr>
+          <tr><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td class="ascii-cell"><input maxlength="1" autocomplete="off" spellcheck="false" /></td></tr>
+          <tr><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td class="ascii-cell"><input maxlength="1" autocomplete="off" spellcheck="false" /></td></tr>
+          <tr><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td class="ascii-cell"><input maxlength="1" autocomplete="off" spellcheck="false" /></td></tr>
+          <tr><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td class="ascii-cell"><input maxlength="1" autocomplete="off" spellcheck="false" /></td></tr>
+          <tr><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td class="ascii-cell"><input maxlength="1" autocomplete="off" spellcheck="false" /></td></tr>
+          <tr><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td class="ascii-cell"><input maxlength="1" autocomplete="off" spellcheck="false" /></td></tr>
+          <tr><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td><input maxlength="1" autocomplete="off" spellcheck="false" /></td><td class="ascii-cell"><input maxlength="1" autocomplete="off" spellcheck="false" /></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p class="footer-note"><b>Remember:</b> type answers exactly. Punctuation matters in the hard section. Case matters because ASCII uses different codes for capital and lowercase letters.</p>
+  </main>
+
+  <script>
+    const puzzles = [
+      { id: "p0", group: "guided", title: "Intercept 0", answer: "BINARY", level: "I DO", hint: "This is the modelled example for the board." },
+      { id: "p1", group: "easy", title: "Intercept 1", answer: "CODING", level: "EASY", hint: "All capitals, six letters." },
+      { id: "p2", group: "easy", title: "Intercept 2", answer: "SECRET", level: "EASY", hint: "All capitals, six letters." },
+      { id: "p3", group: "easy", title: "Intercept 3", answer: "ROBOTS", level: "EASY", hint: "All capitals, six letters." },
+      { id: "p4", group: "medium", title: "Intercept 4", answer: "Python", level: "MEDIUM", hint: "Starts with a capital, then lowercase." },
+      { id: "p5", group: "medium", title: "Intercept 5", answer: "Decode", level: "MEDIUM", hint: "Starts with a capital, then lowercase." },
+      { id: "p6", group: "hard", title: "Intercept 6", answer: "HELLO!", level: "HARD", hint: "All capitals, then punctuation." },
+      { id: "p7", group: "hard", title: "Intercept 7", answer: "Ready?", level: "HARD", hint: "Capital, lowercase, then punctuation." }
+    ];
+
+    const printableAscii = [
+      ...Array.from({ length: 95 }, (_, index) => index + 32)
+    ];
+
+    const gridTargets = {
+      guided: document.getElementById("guidedGrid"),
+      easy: document.getElementById("easyGrid"),
+      medium: document.getElementById("mediumGrid"),
+      hard: document.getElementById("hardGrid")
+    };
+
+    const score = document.getElementById("score");
+
+    function toBinary(character) {
+      return character.charCodeAt(0).toString(2).padStart(8, "0");
+    }
+
+    function toVisibleChar(code) {
+      return code === 32 ? "[space]" : String.fromCharCode(code);
+    }
+
+    function wordToBytes(word) {
+      return [...word].map(toBinary);
+    }
+
+    function makeAsciiReference() {
+      const grid = document.getElementById("asciiGrid");
+      printableAscii.forEach((code) => {
+        const item = document.createElement("div");
+        item.className = "ascii-item";
+
+        const char = document.createElement("div");
+        char.className = "char";
+        char.textContent = toVisibleChar(code);
+
+        const bits = document.createElement("div");
+        bits.className = "bits";
+        bits.textContent = code.toString(2).padStart(8, "0");
+
+        item.append(char, bits);
+        grid.append(item);
+      });
+    }
+
+    function makePuzzle(puzzle) {
+      const card = document.createElement("article");
+      card.className = `puzzle ${puzzle.group === "guided" ? "guided" : ""}`;
+      card.dataset.level = puzzle.level;
+      card.dataset.answer = puzzle.answer;
+      card.id = puzzle.id;
+
+      const title = document.createElement("h3");
+      title.textContent = puzzle.title;
+
+      const binaryLine = document.createElement("div");
+      binaryLine.className = "binary-line";
+      binaryLine.setAttribute("aria-label", `Binary code for ${puzzle.title}`);
+
+      wordToBytes(puzzle.answer).forEach((byte) => {
+        const span = document.createElement("span");
+        span.className = "byte";
+        span.textContent = byte;
+        binaryLine.append(span);
+      });
+
+      const form = document.createElement("form");
+      form.setAttribute("novalidate", "");
+
+      const label = document.createElement("label");
+      label.setAttribute("for", `${puzzle.id}-answer`);
+      label.textContent = "Decoded message";
+
+      const row = document.createElement("div");
+      row.className = "answer-row";
+
+      const input = document.createElement("input");
+      input.id = `${puzzle.id}-answer`;
+      input.autocomplete = "off";
+      input.spellcheck = false;
+      input.placeholder = puzzle.group === "hard" ? "Include punctuation" : "Type the word";
+      input.setAttribute("aria-describedby", `${puzzle.id}-feedback`);
+
+      const button = document.createElement("button");
+      button.type = "submit";
+      button.textContent = "Check";
+
+      row.append(input, button);
+
+      const feedback = document.createElement("div");
+      feedback.className = "feedback";
+      feedback.id = `${puzzle.id}-feedback`;
+      feedback.setAttribute("aria-live", "polite");
+      feedback.textContent = "Waiting for decryption.";
+
+      const hint = document.createElement("p");
+      hint.className = "hint";
+      hint.textContent = puzzle.hint;
+
+      form.append(label, row, feedback);
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        checkAnswer(card, input, feedback);
+      });
+
+      input.addEventListener("input", () => {
+        if (!input.value) {
+          card.classList.remove("solved");
+          feedback.className = "feedback";
+          feedback.textContent = "Waiting for decryption.";
+          updateScore();
+        }
+      });
+
+      card.append(title, binaryLine, form, hint);
+      return card;
+    }
+
+    function checkAnswer(card, input, feedback) {
+      const expected = card.dataset.answer;
+      const typed = input.value.trim();
+
+      if (typed === expected) {
+        card.classList.add("solved");
+        feedback.className = "feedback correct";
+        feedback.textContent = `Verified: ${expected} is correct.`;
+      } else if (typed.toLowerCase() === expected.toLowerCase()) {
+        card.classList.remove("solved");
+        feedback.className = "feedback wrong";
+        feedback.textContent = "Close: the letters are right, but ASCII is case-sensitive. Check capitals and lowercase.";
+      } else {
+        card.classList.remove("solved");
+        feedback.className = "feedback wrong";
+        feedback.textContent = "Not verified yet. Check each 8-bit group against the reference table.";
+      }
+
+      updateScore();
+    }
+
+    function updateScore() {
+      const solved = document.querySelectorAll(".puzzle.solved").length;
+      score.textContent = `${solved} / ${puzzles.length}`;
+    }
+
+    function resetAnswers() {
+      document.querySelectorAll(".puzzle").forEach((card) => {
+        const input = card.querySelector("input");
+        const feedback = card.querySelector(".feedback");
+        input.value = "";
+        card.classList.remove("solved");
+        feedback.className = "feedback";
+        feedback.textContent = "Waiting for decryption.";
+      });
+      updateScore();
+    }
+
+    function makeEncryptRows() {
+      const rows = document.getElementById("encryptRows");
+      for (let index = 0; index < 6; index += 1) {
+        const row = document.createElement("tr");
+
+        const position = document.createElement("td");
+        position.textContent = index + 1;
+
+        const charCell = document.createElement("td");
+        const input = document.createElement("input");
+        input.className = "char-input";
+        input.maxLength = 1;
+        input.autocomplete = "off";
+        input.spellcheck = false;
+        input.setAttribute("aria-label", `Character ${index + 1}`);
+        input.addEventListener("input", syncFromCharacterRows);
+        charCell.append(input);
+
+        const binaryCell = document.createElement("td");
+        const binary = document.createElement("div");
+        binary.className = "binary-output";
+        binary.setAttribute("aria-label", `8-bit binary for character ${index + 1}`);
+        for (let bitIndex = 0; bitIndex < 8; bitIndex += 1) {
+          const bit = document.createElement("span");
+          bit.className = "bit-box";
+          bit.textContent = "-";
+          binary.append(bit);
+        }
+        binaryCell.append(binary);
+
+        row.append(position, charCell, binaryCell);
+        rows.append(row);
+      }
+    }
+
+    makeAsciiReference();
+    puzzles.forEach((puzzle) => gridTargets[puzzle.group].append(makePuzzle(puzzle)));
+    document.getElementById("reset").addEventListener("click", resetAnswers);
+    updateScore();
+  </script>
+</body>
+</html>
