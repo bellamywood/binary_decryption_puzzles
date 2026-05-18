@@ -589,6 +589,28 @@
       font-size: 1.4rem;
     }
 
+    .transmission-example-note {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-weight: 750;
+      line-height: 1.45;
+    }
+
+    .transmission-table.example-table {
+      margin-bottom: 18px;
+    }
+
+    .transmission-table.example-table td {
+      text-align: center;
+      padding: 10px 8px;
+      height: auto;
+      font: 850 1.05rem/1.15 "Courier New", monospace;
+    }
+
+    .transmission-table.example-table td.ascii-cell {
+      font: 850 1.25rem/1.15 "Segoe UI", Arial, sans-serif;
+    }
+
     .transmission-table input:focus {
       outline: none;
       background: rgba(217, 154, 40, 0.18);
@@ -688,6 +710,23 @@
         <h2>Create Your Own Transmission</h2>
         <p>Pick a character, then write its 8-bit binary code</p>
       </div>
+      <p class="transmission-example-note">Example message: <b>Hello!</b> Fill in the binary, then hide the character column before your partner decrypts it.</p>
+      <table class="transmission-table example-table" aria-label="Example binary message">
+        <thead>
+          <tr>
+            <th>BINARY CODE</th>
+            <th>ASCII CODE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>01001000</td><td class="ascii-cell">H</td></tr>
+          <tr><td>01100101</td><td class="ascii-cell">e</td></tr>
+          <tr><td>01101100</td><td class="ascii-cell">l</td></tr>
+          <tr><td>01101100</td><td class="ascii-cell">l</td></tr>
+          <tr><td>01101111</td><td class="ascii-cell">o</td></tr>
+          <tr><td>00100001</td><td class="ascii-cell">!</td></tr>
+        </tbody>
+      </table>
       <table class="transmission-table" aria-label="Create your own binary message worksheet">
         <thead>
           <tr>
